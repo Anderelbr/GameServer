@@ -1,10 +1,10 @@
-var Rooms = ['Channel 1', 'Channel 2'];
+this.Room = function (name, status, id, cursize, size){
 
-this.Room = function (socket){
+	this.name = name;
+	this.status = status;
 
-	this.name = 'Channel';
-	this.status = 'Availabe';
-	
-	this.size = 2;
-	this.id = 0;
+	this.id = id;
+
+	this.cursize = cursize;
+	this.size = size;
 };
