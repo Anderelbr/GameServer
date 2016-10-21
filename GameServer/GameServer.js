@@ -1,4 +1,5 @@
 var room = require('./Room.js').room;
+var game = require('./Game.js');
 
 var app = require('express')();
 var http = require('http').Server(app);
@@ -17,29 +18,11 @@ app.get('/', function (req, res){
 });
 
 function InitializeServer(){
-
 	var io = ioo.listen(http, false);
 
 	io.on('connection', function (socket){
-		socket.on ('GameEnterReq', function(){
-			if(rooms[0].cursize <  rooms[0].size){
-
-			socket.room = rooms[0].name;
-			socket.join(socket.room);
-
-			rooms[0].cursize++;
-
-			console.log("Welcome, you are connected to " + rooms[0].name);
-			console.log("Size: " + rooms[0].size);
-			console.log("Current Size: " + rooms[0].cursize);
-
-			socket.emit('GameEnterRes');
-			};
-		});
-
-		socket.on('WorldEnterReq', function(){
-
-		});
+		var server = new game.EnterWorld(io);
+		StartEvents(server,socket);
 	});
 
 	//Create Channels
@@ -49,6 +32,27 @@ function InitializeServer(){
 	};
 
 	console.log("Server is running on " + port);
+};
+
+function StartEvents(server,socket){
+
+socket.on ('GameEnterReq', function(){
+			if(rooms[0].cursize <  rooms[0].size){
+
+			socket.room = rooms[0].name;
+			socket.join(socket.room);
+
+			//rooms[0].cursize++;
+
+			console.log("Welcome, you are connected to " + rooms[0].name);
+			console.log("Size: " + rooms[0].size);
+			console.log("Current Size: " + rooms[0].cursize);
+
+			socket.emit('GameEnterRes', {channel: socket.room, opcode:"0"});
+			};
+		});
+
+		socket.on('WorldEnterReq', server.LoadPlayer);
 };
 
 http.listen(port);
