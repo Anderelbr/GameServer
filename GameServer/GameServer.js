@@ -1,8 +1,8 @@
-var room = require('./Room.js');
+var room = require('./Room.js').room;
 
 var app = require('express')();
 var http = require('http').Server(app);
-var io = require('socket.io')(http, false);
+var ioo = require('socket.io');
 var shortid = require('shortid');
 
 var port = process.env.PORT || 7300;
@@ -13,10 +13,13 @@ var maxrooms = 3;
 
 app.get('/', function (req, res){
 	res.send("<h1>Server is running on " + port + "</h1>");
-	StartSocket();
+	InitializeServer();
 });
 
-function StartSocket(){
+function InitializeServer(){
+
+	var io = ioo.listen(http, false);
+
 	io.on('connection', function (socket){
 		socket.on ('GameEnterReq', function(){
 			if(rooms[0].cursize <  rooms[0].size){
@@ -24,18 +27,28 @@ function StartSocket(){
 			socket.room = rooms[0].name;
 			socket.join(socket.room);
 
-			rooms[0].curize++;
+			rooms[0].cursize++;
+
 			console.log("Welcome, you are connected to " + rooms[0].name);
+			console.log("Size: " + rooms[0].size);
+			console.log("Current Size: " + rooms[0].cursize);
+
+			socket.emit('GameEnterRes');
 			};
+		});
+
+		socket.on('WorldEnterReq', function(){
+
 		});
 	});
 
 	//Create Channels
 	for (var i = 0; i < maxrooms; i++){
-		var roomm = new room ('Channel ' + i, 'Available', shortid.generate(), 0, 3);
-		rooms.push(roomm);
+		var curoom = new room ('Channel ' + i, 'Available', shortid.generate(), 0, 3);
+		rooms.push(curoom);
 	};
+
+	console.log("Server is running on " + port);
 };
 
-console.log("Server is running on " + port);
 http.listen(port);

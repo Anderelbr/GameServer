@@ -1,4 +1,4 @@
-this.Room = function (name, status, id, cursize, size){
+function Room (name, status, id, cursize, size){
 
 	this.name = name;
 	this.status = status;
@@ -8,3 +8,5 @@ this.Room = function (name, status, id, cursize, size){
 	this.cursize = cursize;
 	this.size = size;
 };
+
+module.exports.room = Room;
