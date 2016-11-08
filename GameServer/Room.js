@@ -1,12 +1,28 @@
-function Room (name, status, id, cursize, size){
+"use strict";
 
-	this.name = name;
-	this.status = status;
+class Room {
 
-	this.id = id;
+    constructor (name, status, id, cursize, size){
+        this.name = name;
+        this.status = status;
 
-	this.cursize = cursize;
-	this.size = size;
+        this.id = id;
+
+        this.cursize = cursize;
+        this.size = size;
+    }
+    
+    AddClient (){
+        this.cursize++;
+    };
+    
+    get Size (){
+        return this.size;
+    }
+    
+    get CurSize (){
+        return this.cursize;
+    }
 };
 
 module.exports.room = Room;

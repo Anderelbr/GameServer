@@ -1,14 +1,15 @@
 {
-	"name":"GameServer",
-	"version":"1.0.0",
-	"description":"dsadsad",
-	"main":"StartGame.js",
-	"dependencies": {
-		"socket.io":"*",
-		"express":"*",
-		"mongodb":"*",
-		"shortid":"*"
-	},
-	"author":"Ander Berriel",
-	"license":"ISC"
+  "name": "GameServer",
+  "version": "1.0.0",
+  "description": "dsadsad",
+  "main": "StartGame.js",
+  "dependencies": {
+    "express": "*",
+    "lodash": "^4.16.6",
+    "mongodb": "*",
+    "shortid": "*",
+    "socket.io": "*"
+  },
+  "author": "Ander Berriel",
+  "license": "ISC"
 }

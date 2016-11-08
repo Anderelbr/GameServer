@@ -1,64 +1,70 @@
-var room = require('./Room.js').room;
-var game = require('./Game.js');
-
-var shortid = require('shortid');
+var players = [];
+module.exports.players = players;
 
 var app = require('express')();
 var http = require('http').Server(app);
 var io = require('socket.io');
 
+var shortid = require('shortid');
 var port = process.env.PORT || 7300;
 
 var rooms = [];
 var maxrooms = 3;
 
-var serverunning = false;
+var Room = require('./Room.js').room;
+var DataBase = require('./DataBase.js');
 
-function StartEvents(server,socket){
-    socket.on ('GameEnterReq', function(){
-        if(rooms[0].cursize <  rooms[0].size){         
-            socket.room = rooms[0].name;
-            socket.join(socket.room);
+var ClientClass = require('./Client.js').ClientClass;
 
-            rooms[0].cursize++;
-
-            console.log("Welcome, you are connected to " + rooms[0].name);
-            console.log("Current Size: " + rooms[0].cursize + "/" + rooms[0].size);
-
-            socket.emit('GameEnterRes', {channel: socket.room, opcode:"0"});
-        };
-    });
-    
-    socket.on('MoveReq', server.Move);
-    socket.on('WorldEnterReq', server.LoadPlayer);  
-    
-    socket.on('disconnect', server.DisconnectedPlayer);
-};
+//-------------------------------------------------------------------------------------//  
+//                           Initialize Server                                         //        
+//-------------------------------------------------------------------------------------//
 
 function InitializeServer(){
-    if(!serverunning){
-        
+    
 	io = io.listen(http, false);
-    
-	io.on('connection', function (socket){
-		var server = new game.Server(socket);
-		StartEvents(server,socket);
-	});
+	io.on('connection', (socket) => {
+        socket.on ('GameEnterReq', () => {
+            if(rooms[0].CurSize < rooms[0].Size){         
+                socket.room = rooms[0].name;
+                socket.join(socket.room);
 
-	//TODO:Create Channels
-	for (var i = 0; i < maxrooms; i++){
-		var curoom = new room ('Channel ' + i, 'Available', shortid.generate(), 0, 20);
-		rooms.push(curoom);
-	};
-    
-    serverunning = true;
+                rooms[0].AddClient();
+
+                console.log("Welcome, you are connected to " + rooms[0].name);
+                console.log("Current Size: " + rooms[0].CurSize + "/" + rooms[0].Size);
+
+                socket.emit('GameEnterRes', {channel: socket.room, opcode:"0"});
+                
+                let Client = new ClientClass(socket);
+            };
+        });
+	});
+        
+    DataBase.Connect();   
+    CreateChannels();
+      
 	console.log("Server is running on " + port);
-    };
 };
 
-app.get('/', function (req, res){
-	res.send("<h1>Server is running on " + port + "</h1>");
-	InitializeServer();
+//-------------------------------------------------------------------------------------//  
+//                           Create Channels                                           //        
+//-------------------------------------------------------------------------------------//
+
+function CreateChannels (){
+    for (let i = 0; i < maxrooms; i++){
+        let curoom = new Room ('Channel ' + i, 'Available', shortid.generate(), 0, 20);
+        rooms.push(curoom);
+	};
+};
+
+//-------------------------------------------------------------------------------------//  
+//                           Undefined                                                 //        
+//-------------------------------------------------------------------------------------//
+
+app.get('/', (req, res) => {
+    res.send("<h1>Server is running on " + port + "</h1>");
 });
 
+setTimeout(InitializeServer, 100);
 http.listen(port);
